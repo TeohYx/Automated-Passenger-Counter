@@ -2,19 +2,16 @@ from __future__ import print_function
 
 import os
 import numpy as np
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+# import matplotlib
+# matplotlib.use('TkAgg')
+# import matplotlib.pyplot as plt
+# import matplotlib.patches as patches
 from skimage import io
 
 import glob
 import time
 import argparse
 from filterpy.kalman import KalmanFilter
-
-import streamlit as st
-
 np.random.seed(0)
 
 def linear_assignment(cost_matrix):

@@ -24,7 +24,9 @@ from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
 #---------------Object Tracking---------------
-from track.sort import *
+from track.sort import Sort
+import time
+import numpy as np
 # from track.bounding_box import get_line 
 
 
