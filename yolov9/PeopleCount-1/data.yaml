@@ -1,0 +1,12 @@
+names:
+- Person
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: peoplecount
+  url: https://universe.roboflow.com/artur-sharipov-cncyq/peoplecount/dataset/1
+  version: 1
+  workspace: artur-sharipov-cncyq
+test: ../test/images
+train: PeopleCount-1/train/images
+val: PeopleCount-1/valid/images

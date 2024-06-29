@@ -1,0 +1,13 @@
+{
+    "selectbox_sidebar": "Current",
+    "source": null,
+    "uploaded_file": null,
+    "is_media_chosen": false,
+    "streaming_url": "",
+    "show_container": true,
+    "line_selection": ["None"],
+    "database": "bus_information",
+    "media_mode": "None",
+    "is_presetline_selected": false,
+    "have_visualization": false
+}
