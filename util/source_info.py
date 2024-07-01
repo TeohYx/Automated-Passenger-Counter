@@ -57,4 +57,3 @@ class SourceInfo():
         # print(f"Image size: Width = {width}, Height = {height}, Channels = {channels}")
 
         cap.release()
-        cv2.destroyAllWindows()
