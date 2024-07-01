@@ -146,8 +146,13 @@ def main():
         #     strlit.display_history_interface()
 
         # Detect screen type
+        # dets = {"weights": weights_path, "conf_thres": 0.1 \
+        #         , "source": st.session_state.source, "device": torch.cuda.current_device() \
+        #         , "classes": 0, "vid_stride": 5, "strlit": strlit \
+        #         , "mongodb": mongodb, "counter_obj": counter_obj, "source_info_obj": source_info_obj \
+        #         , "track_info_obj": track_info_obj}
         dets = {"weights": weights_path, "conf_thres": 0.1 \
-                , "source": st.session_state.source, "device": torch.cuda.current_device() \
+                , "source": st.session_state.source \
                 , "classes": 0, "vid_stride": 5, "strlit": strlit \
                 , "mongodb": mongodb, "counter_obj": counter_obj, "source_info_obj": source_info_obj \
                 , "track_info_obj": track_info_obj}
