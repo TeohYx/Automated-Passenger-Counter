@@ -1,9 +1,9 @@
 {
     "source_size": {
-        "height": 480,
-        "width": 852
+        "height": 1080,
+        "width": 1920
     },
-    "selection": "vertical_left_boarding",
+    "selection": "lastsaved",
     "vertical_left_boarding": {
         "inner": {
             "color": [
@@ -12,12 +12,12 @@
                 0
             ],
             "p1": [
-                383,
+                864,
                 0
             ],
             "p2": [
-                383,
-                480
+                864,
+                1080
             ]
         },
         "outer": {
@@ -27,12 +27,12 @@
                 255
             ],
             "p1": [
-                468,
+                1056,
                 0
             ],
             "p2": [
-                468,
-                480
+                1056,
+                1080
             ]
         },
         "path": "presetline/vertical_left_boarding.png"
@@ -45,12 +45,12 @@
                 0
             ],
             "p1": [
-                468,
+                1056,
                 0
             ],
             "p2": [
-                468,
-                480
+                1056,
+                1080
             ]
         },
         "outer": {
@@ -60,12 +60,12 @@
                 255
             ],
             "p1": [
-                383,
+                864,
                 0
             ],
             "p2": [
-                383,
-                480
+                864,
+                1080
             ]
         },
         "path": "presetline/vertical_right_boarding.png"
@@ -79,11 +79,11 @@
             ],
             "p1": [
                 0,
-                216
+                486
             ],
             "p2": [
-                852,
-                216
+                1920,
+                486
             ]
         },
         "outer": {
@@ -94,11 +94,11 @@
             ],
             "p1": [
                 0,
-                264
+                594
             ],
             "p2": [
-                852,
-                264
+                1920,
+                594
             ]
         },
         "path": "presetline/horizontal_above_boarding.png"
@@ -112,11 +112,11 @@
             ],
             "p1": [
                 0,
-                264
+                594
             ],
             "p2": [
-                852,
-                264
+                1920,
+                594
             ]
         },
         "outer": {
@@ -127,11 +127,11 @@
             ],
             "p1": [
                 0,
-                216
+                486
             ],
             "p2": [
-                852,
-                216
+                1920,
+                486
             ]
         },
         "path": "presetline/horizontal_below_boarding.png"
@@ -144,12 +144,12 @@
                 0
             ],
             "p1": [
-                246,
-                176
+                366,
+                58
             ],
             "p2": [
-                246,
-                380
+                366,
+                453
             ]
         },
         "outer": {
@@ -159,14 +159,15 @@
                 255
             ],
             "p1": [
-                303,
-                176
+                450,
+                57
             ],
             "p2": [
-                303,
-                381
+                450,
+                452
             ]
         },
         "path": "presetline/lastsaved.png"
-    }
+    },
+    "plain_image": "presetline/screenshot.png"
 }

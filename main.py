@@ -105,7 +105,7 @@ def main():
     # Initiate streamlit
     strlit = Streamlit()
     strlit.json_file = preset_line_json
-
+    mongodb = Database(collection_name=database_name, client_host="mongodb+srv://TeohYx:Xian-28-0605@apc.agqhpn3.mongodb.net/")
     # streamlit
     st.title("Automated Passenger Counter")
 
@@ -118,11 +118,10 @@ def main():
 
     if st.session_state.selectbox_sidebar == strlit.selection_current:
 
-        media_container = strlit.container[0].empty()   # to hold the media header
         media_choser = strlit.container[0].empty()  # to hold the media input tabs
 
         if not st.session_state.source:
-            st.session_state.source = strlit.select_source(media_choser, media_container) # return source when chosen
+            st.session_state.source = strlit.select_source(media_choser) # return source when chosen
 
         if st.session_state['is_media_chosen']:
             if st.session_state['streaming_url']:
@@ -130,14 +129,15 @@ def main():
             else:
                 media_choser.text(f"Recorded video: {st.session_state.source}")
     elif st.session_state.selectbox_sidebar == strlit.selection_history:
-        strlit.display_history_visualization()
+        strlit.display_history_visualization(mongodb)
 
     # If media source is chosen
     if st.session_state.source:
-        mongodb = Database(collection_name=database_name)
+
         counter_obj = Counter()
         source_info_obj = SourceInfo(st.session_state.source, screenshot_file)  # The resized resolution is set to 720, 1280 by default
         track_info_obj = TrackInfo(preset_line_json, preset_line_path)
+        track_info_obj.store_plain_image(screenshot_file)
 
         # # Selectbox in Streamlit
         if st.session_state.selectbox_sidebar == strlit.selection_current:

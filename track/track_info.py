@@ -37,6 +37,16 @@ class TrackInfo():
     def set_outer_line(self, outer_line):
         self.outer_line = outer_line
 
+    def store_plain_image(self, screenshot_path):
+        with open(TrackInfo.preset_line_json, 'r') as file:
+            data = json.load(file)      
+
+        data['plain_image'] = screenshot_path 
+
+        # Save json file
+        with open(TrackInfo.preset_line_json, 'w') as file:
+            json.dump(data, file, indent=4)
+
     def set_line(self):
         """
         Set up object's inner and outer line is it is specified in the json file, return is none is set
@@ -125,7 +135,10 @@ class TrackInfo():
 
         height, width = source_size[0], source_size[1]
 
-        if not data['source_size']['height'] == height and data['source_size']['width'] == width:
+        print(f"Source shape: {(height, width)}")
+        print(f"json shape: {(data['source_size']['height'], data['source_size']['width'])}")
+
+        if data['source_size']['height'] != height or data['source_size']['width'] != width:
             # Calculate the line proportion, in 45% and 55%
             height_upper = int(height * 0.45)
             height_lower = int(height * 0.55)
@@ -193,6 +206,7 @@ class TrackInfo():
         data['source_size']['height'] = -1 
         data['source_size']['width'] = -1
         data['selection'] = ""
+        data['plain_image'] = ""
         TrackInfo.reset_dict(data, "vertical_left_boarding")
         TrackInfo.reset_dict(data, "vertical_right_boarding")
         TrackInfo.reset_dict(data, "horizontal_above_boarding")

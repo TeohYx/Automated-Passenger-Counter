@@ -17,6 +17,10 @@ from datetime import datetime
 import time
 from database.mongo import Database
 
+from PIL import Image
+import numpy as np
+from streamlit_drawable_canvas import st_canvas
+
 class Streamlit:
     selection_current = "Current"
     selection_history = "History"
@@ -47,7 +51,7 @@ class Streamlit:
 
         return css
 
-    def select_preset_line(self, container, track_info_obj, source_info_obj):
+    def select_preset_line(self):
         """
         Select the preset line in "current" container
         """
@@ -64,19 +68,101 @@ class Streamlit:
                 for item in data:
                     extract_path(item, parent_key=parent_key)
 
+        def display_streamlit_canvas(data, jsonf):
+            bg_image = data['plain_image']
+            height = data['source_size']['height']
+            width = data['source_size']['width']
+
+            if bg_image:
+                background_image = Image.open(bg_image)
+            else:
+                background_image = None
+
+            canvas_width = 600
+            canvas_height = 600*9/16      #16:9
+
+            # Create a canvas component
+            canvas_result = st_canvas(
+                fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
+                stroke_width=1,
+                stroke_color="black",
+                background_color="",
+                background_image=background_image,
+                update_streamlit=True,
+                height=canvas_height,
+                width=canvas_width,
+                drawing_mode="line",
+                display_toolbar=True,
+                key="full_app",
+            )
+
+            # canvas = self.container[0].empty()
+
+            if canvas_result.json_data is not None:
+                objects = pd.json_normalize(canvas_result.json_data["objects"])
+                for col in objects.select_dtypes(include=["object"]).columns:
+                    objects[col] = objects[col].astype("str")
+
+                if len(objects) == 2:
+                    btn = self.container[0].button("Select the customized preset line")
+
+                    if btn:
+                        st.session_state["drawing_canvas"] = False
+                        #  Center + half of the line
+                        x11 = objects.iloc[0]['left'] + objects.iloc[0]['x1']
+                        y11 = objects.iloc[0]['top'] + objects.iloc[0]['y1']
+                        x12 = objects.iloc[0]['left'] + objects.iloc[0]['x2']
+                        y12 = objects.iloc[0]['top'] + objects.iloc[0]['y2']
+
+                        x21 = objects.iloc[1]['left'] + objects.iloc[0]['x1']
+                        y21 = objects.iloc[1]['top'] + objects.iloc[0]['y1']
+                        x22 = objects.iloc[1]['left'] + objects.iloc[0]['x2']
+                        y22 = objects.iloc[1]['top'] + objects.iloc[0]['y2']
+
+                        actual_x11 = int((x11 / canvas_width) * width)
+                        actual_y11 = int((y11 / canvas_height) * height)
+                        actual_x12 = int((x12 / canvas_width) * width)
+                        actual_y12 = int((y12 / canvas_height) * height)
+
+                        actual_x21 = int((x21 / canvas_width) * width)
+                        actual_y21 = int((y21 / canvas_height) * height)
+                        actual_x22 = int((x22 / canvas_width) * width)
+                        actual_y22 = int((y22 / canvas_height) * height)
+
+                        print(f"{actual_x11}, {actual_y11}, {actual_x12}, {actual_y12}")
+                        print(f"{actual_x21}, {actual_y21}, {actual_x22}, {actual_y22}")
+
+                        data['lastsaved']['inner']['p1'] = [actual_x11, actual_y11]
+                        data['lastsaved']['inner']['p2'] = [actual_x12, actual_y12]
+                        data['lastsaved']['outer']['p1'] = [actual_x21, actual_y21]
+                        data['lastsaved']['outer']['p2'] = [actual_x22, actual_y22]
+
+                        with open(jsonf, 'w') as file:
+                            json.dump(data, file, indent=4)
+
+                        st.rerun()
+                elif len(objects) < 2:
+                    self.container[0].caption("Draw one line first for :green[Boarding line], and second line for :red[Alighting line]")
+                elif len(objects) > 2:
+                    self.container[0].caption("Too much line drawn, only two is needed, which are :green[Boarding line] and :red[Alighting line]")
+
+            if self.container[0].button("Back"):
+                st.session_state["drawing_canvas"] = False
+                st.rerun()
         # Show the container, prompting user to select the preset line.
         # with first_container:
         # Display text
-        container.header("Choose the preset line.")
-        container.caption("The preset line will be used as counting purpose in the video source.")
-        container.caption(
+        self.container[0].header("Choose the preset line.")
+        self.container[0].caption("The preset line will be used as counting purpose in the video source.")
+        self.container[0].caption(
             Streamlit.css_caption("Red line - Alighting line", "red-color", "red"),
             unsafe_allow_html=True
             )
-        container.caption(
+        self.container[0].caption(
             Streamlit.css_caption("Green line - Boarding line", "green-color", "green"),
             unsafe_allow_html=True
             )
+        self.container[0].markdown("---")
 
         # jsonf = "presetline/preset_line.json"      
         jsonf = self.json_file  
@@ -85,46 +171,43 @@ class Streamlit:
             data = json.load(file)
 
         extract_path(data)
-        # print(image_path)
 
-        # selected_image = container.selectbox(
-        #     "Select", 
-        #     options=list(self.image_path.keys()),
-        #     # index=list(self.image_path.keys()).index(st.session_state.selectbox_value),
-        #     key="selectbox",
-        #     on_change=on_selectbox_change
-        # )
-        selected_image = container.selectbox("Select", options=list(self.image_path.keys()))
-        st.session_state.line_selection = (selected_image, self.image_path[selected_image])
-        container.image(self.image_path[selected_image], caption=selected_image)
+        if 'drawing_canvas' not in st.session_state:
+            st.session_state['drawing_canvas'] = False
 
-        if container.button("Customize preset line"):
-            # Feed in opencv draw line window
-            detect.draw_image(source_info_obj.screenshot_file, track_info_obj, source_info_obj)
-            st.rerun()
-            # pass
+        if not st.session_state['drawing_canvas']:
+            selected_image = self.container[0].selectbox("Select", options=list(self.image_path.keys()))
+            st.session_state.line_selection = (selected_image, self.image_path[selected_image])
+            self.container[0].image(self.image_path[selected_image], caption=selected_image)
 
-        if container.button("Select"):
-            print("isClicked")
-            st.session_state.show_container = not st.session_state.show_container
+            if self.container[0].button("Customize preset line"):
+                # When click the button, display the canvas to draw
+                st.session_state['drawing_canvas'] = True
+                st.rerun()
 
-            data["selection"] = selected_image
+            if self.container[0].button("Select"):
+                print("isClicked")
+                st.session_state.show_container = not st.session_state.show_container
 
-            with open(jsonf, 'w') as file:
-                json.dump(data, file)
+                data["selection"] = selected_image
 
-            st.rerun()
-            # if st.session_state.line_selection is None:
-            #     pass
-            # else:
-            #     print(st.session_state.show_container)
+                with open(jsonf, 'w') as file:
+                    json.dump(data, file)
+
+                st.rerun()
+                # if st.session_state.line_selection is None:
+                #     pass
+                # else:
+                #     print(st.session_state.show_container)
+        else:
+            display_streamlit_canvas(data, jsonf)
 
     @staticmethod
-    def select_source(media_choser, container):
+    def select_source(media_choser):
         """
         Prompt user to select source mode
         """
-        container.header("Choose the media source")
+        media_choser.header("Choose the media source")
 
         if not st.session_state['is_media_chosen']:
             tab1, tab2 = media_choser.tabs(['Recorded video', 'Real time'])
@@ -138,9 +221,15 @@ class Streamlit:
                 # if uploaded_file:
                 if st.session_state['uploaded_file'] is not None:
                     # print(st.session_state['uploaded_file'])
+
+                    # Get the file extension (eg: mp4)
                     file_extension = os.path.splitext(st.session_state['uploaded_file'].name)[1]
+                    # Creates a temperory file and returns a file object
                     tfile = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
+                    # Writes the content of the uploaded file to the temporary file
                     tfile.write(st.session_state['uploaded_file'].read())
+
+
                     # print(tfile)
                     st.session_state['is_media_chosen'] = True
                     return tfile.name
@@ -291,16 +380,14 @@ class Streamlit:
         
         # time.sleep(0.1)
 
-    def display_history_visualization(self):
+    def display_history_visualization(self, mongodb):
         """
         Display the history visualization in "history" selection
         """
         self.container[1].caption("This page visualize the history counting.")
         dis_tab1, dis_tab2 = self.container[1].tabs(["Full day", "Every run"])
 
-        db = Database()
-
-        collections = db.db.list_collection_names()
+        collections = mongodb.db.list_collection_names()
 
         date_format = "%Y%m%d_%H%M%S"
 
@@ -434,7 +521,7 @@ class Streamlit:
                 collection_list[date] = None
                 # print(collection_list)
             # Get the document of the collection
-            documents = list(db.db[collection].find())
+            documents = list(mongodb.db[collection].find())
             cleaned_data = [{key:value for key, value in record.items() if key != '_id'} for record in documents]
 
             df = pd.DataFrame(cleaned_data)
@@ -484,7 +571,7 @@ class Streamlit:
 
         if st.session_state.show_container:
             # first_container.empty()
-            self.select_preset_line(self.container[0], track_info_obj, source_info_obj)
+            self.select_preset_line()
         else:
             self.container[0].text(f"Selected line: {st.session_state.line_selection[0]}")
             self.display_source(self.container[0])
