@@ -72,13 +72,13 @@ def main():
     
     strlit = Streamlit()        # Initiate Streamlit instance
     strlit.json_file = preset_line_json
-    # mongodb = Database(
-    #     collection_name=database_name, client_host="mongodb+srv://TeohYx:Xian-28-0605@apc.agqhpn3.mongodb.net/"
-    #     )                       # Initiate Database instance
-
     mongodb = Database(
-        collection_name=database_name,
+        collection_name=database_name, client_host="mongodb+srv://TeohYx:Xian-28-0605@apc.agqhpn3.mongodb.net/"
         )                       # Initiate Database instance
+
+    # mongodb = Database(
+    #     collection_name=database_name,
+    #     )                       # Initiate Database instance
 
 
     # streamlit
