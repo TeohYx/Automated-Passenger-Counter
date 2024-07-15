@@ -412,7 +412,7 @@ def run(
             strlit.container[0].header("Visualization")
 
             # Loop, starts runnning the video or streaming media
-            for path, im, im0s, vid_cap, s in dataset:
+            for path, im, im0s, vid_cap, s in st.session_state['dataset']:
                 temp_time = time.time()
 
                 # Manage database MongoDB
@@ -473,27 +473,20 @@ def run(
                     pred = pred[0][1] if isinstance(pred[0], list) else pred[0]
                     pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
 
-                # Second-stage classifier (optional)
-                # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
-                
-                #example: 
-                # pred is [tensor([[499.17947, 181.21526, 621.33301, 341.38055,   0.91296,   0.00000],
-                # [401.35309, 284.58063, 507.15344, 371.85614,   0.83781,   0.00000]], device='cuda:0')]
-                # Process every detected object
                 for i, det in enumerate(pred):  # per image
                     seen += 1
                     if webcam:  # batch_size >= 1
-                        p, im0, frame = path[i], im0s[i].copy(), dataset.count
+                        p, im0, frame = path[i], im0s[i].copy(), st.session_state['dataset'].count
                         s += f'{i}: '
                     else:
-                        p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
+                        p, im0, frame = path, im0s.copy(), getattr(st.session_state['dataset'], 'frame', 0)
 
                     #..................DRAW SELECTED PRESET LINE....................
                     track_info_obj.draw_line_on_frame(im0)    
 
                     p = Path(p)  # to Path
                     save_path = str(save_dir / p.name)  # im.jpg
-                    txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
+                    txt_path = str(save_dir / 'labels' / p.stem) + ('' if st.session_state['dataset'].mode == 'image' else f'_{frame}')  # im.txt
                     s += '%gx%g ' % im.shape[2:]  # print string
                     gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
                     imc = im0.copy() if save_crop else im0  # for save_crop
@@ -629,7 +622,7 @@ def run(
 
                     # Save results (image with detections)
                     if save_img:
-                        if dataset.mode == 'image':
+                        if st.session_state['dataset'].mode == 'image':
                             cv2.imwrite(save_path, im0)
                         else:  # 'video' or 'stream'
                             if vid_path[i] != save_path:  # new video

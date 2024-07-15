@@ -209,6 +209,16 @@ class Streamlit:
         """
         media_choser.header("Choose the media source")
 
+        def store_video():
+            """Store file in temporary folder"""
+            # Get the file extension (eg: mp4)
+            file_extension = os.path.splitext(st.session_state['uploaded_file'].name)[1]
+            # Creates a temperory file and returns a file object
+            tfile = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
+            # Writes the content of the uploaded file to the temporary file
+            tfile.write(st.session_state['uploaded_file'].read())
+            return tfile
+
         if not st.session_state['is_media_chosen']:
             tab1, tab2 = media_choser.tabs(['Recorded video', 'Real time'])
             with tab1:
@@ -222,12 +232,7 @@ class Streamlit:
                 if st.session_state['uploaded_file'] is not None:
                     # print(st.session_state['uploaded_file'])
 
-                    # Get the file extension (eg: mp4)
-                    file_extension = os.path.splitext(st.session_state['uploaded_file'].name)[1]
-                    # Creates a temperory file and returns a file object
-                    tfile = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
-                    # Writes the content of the uploaded file to the temporary file
-                    tfile.write(st.session_state['uploaded_file'].read())
+                    tfile = store_video()
 
 
                     # print(tfile)
@@ -243,13 +248,6 @@ class Streamlit:
                 
                 st.session_state['streaming_url'] = current_value
                 return st.session_state['streaming_url']
- 
-    def display_source(self, container):
-        """
-        Display the source in "current" container
-        """
-        container.markdown("---")
-        container.header("Media source")
 
     def display_current_visualization(self, mongodb):
         """
@@ -294,6 +292,19 @@ class Streamlit:
             fig.update_yaxes(range=[0, max + 1])  # Adjust the range as needed
             fig.update_layout(yaxis_tickformat='d')
             return fig
+        
+        def set_chart(container, df):
+            fig_in = px.bar(df, x="time", y="in", title="in")
+            fig_out = px.bar(df, x="time", y="out", title="out")
+            fig_net = px.bar(df, x="time", y="net", title="net")
+
+            fig_in = adjust_chart(fig_in, df['in'].max())
+            fig_out = adjust_chart(fig_out, df['out'].max())
+            # fig_net = adjust_chart(fig_net, df['net'].max())
+            
+            container.plotly_chart(fig_in)
+            container.plotly_chart(fig_out)
+            container.plotly_chart(fig_net)  
 
         if st.session_state['have_visualization']:
             tab1, tab2 = self.temp_empty[0].container().tabs(["General", "Interactive"])
@@ -305,73 +316,26 @@ class Streamlit:
                 subtab1, subtab2, subtab3, subtab4 = tab2.tabs(["2m", "10m", "30m", "1h"])
                 
                 with subtab1:
-                    fig_in = px.bar(df, x="time", y="in", title="in")
-                    fig_out = px.bar(df, x="time", y="out", title="out")
-                    fig_net = px.bar(df, x="time", y="net", title="net")
-
-                    fig_in = adjust_chart(fig_in, df['in'].max())
-                    fig_out = adjust_chart(fig_out, df['out'].max())
-                    # fig_net = adjust_chart(fig_net, df['net'].max())
-                    
-                    subtab1.plotly_chart(fig_in)
-                    subtab1.plotly_chart(fig_out)
-                    subtab1.plotly_chart(fig_net)
+                    set_chart(subtab1, df)
 
                 with subtab2:
                     if num_rows > 5:
                         sum = df.groupby(df.index // 5).apply(custom_agg).reset_index(drop=True)
-                        
-                        fig_in = px.bar(sum, x="time", y="in", title="in")
-                        fig_out = px.bar(sum, x="time", y="out", title="out")
-                        fig_net = px.bar(sum, x="time", y="net", title="net")
-
-                        fig_in = adjust_chart(fig_in, sum['in'].max())
-                        fig_out = adjust_chart(fig_out, sum['out'].max())
-                        # fig_net = adjust_chart(fig_net, sum['net'].max())
-                        
-                        subtab2.plotly_chart(fig_in)
-                        subtab2.plotly_chart(fig_out)
-                        subtab2.plotly_chart(fig_net)
+                        set_chart(subtab2, sum)
                     else:
                         subtab2.caption("At least 10 minutes of data are needed to display the visual")
                 with subtab3:
                     if num_rows > 15:
                         sum = df.groupby(df.index // 15).apply(custom_agg).reset_index(drop=True)
- 
-                        fig_in = px.bar(sum, x="time", y="in", title="in")
-                        fig_out = px.bar(sum, x="time", y="out", title="out")
-                        fig_net = px.bar(sum, x="time", y="net", title="net")
-
-                        fig_in = adjust_chart(fig_in, sum['in'].max())
-                        fig_out = adjust_chart(fig_out, sum['out'].max())
-                        # fig_net = adjust_chart(fig_net, sum['net'].max())
-                        
-                        subtab3.plotly_chart(fig_in)
-                        subtab3.plotly_chart(fig_out)
-                        subtab3.plotly_chart(fig_net)
-
+                        set_chart(subtab3, sum)
                     else:
                         subtab3.caption("At least 30 minutes of data are needed to display the visual")
                 with subtab4:
                     if num_rows > 30:
                         sum = df.groupby(df.index // 30).apply(custom_agg).reset_index(drop=True)
-                        
-                        fig_in = px.bar(sum, x="time", y="in", title="in")
-                        fig_out = px.bar(sum, x="time", y="out", title="out")
-                        fig_net = px.bar(sum, x="time", y="net", title="net")
-
-                        fig_in = adjust_chart(fig_in, sum['in'].max())
-                        fig_out = adjust_chart(fig_out, sum['out'].max())
-                        # fig_net = adjust_chart(fig_net, sum['net'].max())
-                        
-                        subtab4.plotly_chart(fig_in)
-                        subtab4.plotly_chart(fig_out)
-                        subtab4.plotly_chart(fig_net)
-
+                        set_chart(subtab4, sum)
                     else:
                         subtab4.caption("At least 1 hour of data are needed to display the visual")
-                    
-                # self.temp_empty[1].text("lel")
         else:
             text_section = self.temp_empty[0].container()
             text_section.caption("The source media is less than 120 seconds, interactive section is unavailable.")
@@ -562,7 +526,7 @@ class Streamlit:
                             tab.plotly_chart(fig_out)
                             tab.plotly_chart(fig_net)
 
-    def display_current_interface(self, track_info_obj, source_info_obj):
+    def display_current_interface(self):
         """
         Display the camera source and visualization when "current" selection is selected
         """
@@ -574,20 +538,22 @@ class Streamlit:
             self.select_preset_line()
         else:
             self.container[0].text(f"Selected line: {st.session_state.line_selection[0]}")
-            self.display_source(self.container[0])
+            self.container[0].markdown("---")
+            self.container[0].header("Media source")
+
             # self.display_current_visualization(self.container[0])
 
-    @staticmethod
-    def set_containers():
-        """
-        Set the empty container for better interface
-        """
-        first_container = st.container()
-        second_container = st.container()
-        third_container = st.container()
-        fourth_container = st.container()
+    # @staticmethod
+    # def set_containers():
+    #     """
+    #     Set the empty container for better interface
+    #     """
+    #     first_container = st.container()
+    #     second_container = st.container()
+    #     third_container = st.container()
+    #     fourth_container = st.container()
 
-        return first_container, second_container, third_container, fourth_container
+    #     return first_container, second_container, third_container, fourth_container
 
 def main():
     strlit = Streamlit()

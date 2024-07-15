@@ -3,7 +3,7 @@
         "height": 1080,
         "width": 1920
     },
-    "selection": "lastsaved",
+    "selection": "horizontal_above_boarding",
     "vertical_left_boarding": {
         "inner": {
             "color": [
@@ -144,12 +144,12 @@
                 0
             ],
             "p1": [
-                366,
-                58
+                656,
+                345
             ],
             "p2": [
-                366,
-                453
+                649,
+                944
             ]
         },
         "outer": {
@@ -159,12 +159,12 @@
                 255
             ],
             "p1": [
-                450,
-                57
+                824,
+                339
             ],
             "p2": [
-                450,
-                452
+                817,
+                937
             ]
         },
         "path": "presetline/lastsaved.png"

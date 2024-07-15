@@ -12,17 +12,10 @@ import streamlit as st
 class Database:
     def __init__(self, client_host="mongodb://localhost:27017/", database="APC",
                  collection_name=f"bus_information ({datetime.datetime.now().strftime('%Y%m%d_%H%M%S')})"):
-        self.client = None
-        self.db = None
-        self.collection_name = None
+        self.client = MongoClient(client_host)
+        self.db = self.client[database]
+        self.collection_name = collection_name
         self.document = None
-        self.initialize_database(client_host, database, collection_name)
-
-    def initialize_database(_self, client_host, database, collection_name):
-        _self.client = MongoClient(client_host)  # MongoDb host
-        _self.db = _self.client[database]  # MongoDb database
-        _self.collection_name = collection_name  # MongoDb collection
-        print(f"Successfully initialized MongoDB database in {client_host}. Database: {database}, Collection: {collection_name}")
 
     def get_collection_col(self):
         """

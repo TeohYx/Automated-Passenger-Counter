@@ -69,43 +69,18 @@ def main():
     weights_path = download_model_weights(weight)   # Get model weights
     initialize_session_state(streamlit_session_state_json)  # Initialize streamlit session state
     database_name = f"{st.session_state.database} ({datetime.now().strftime('%Y%m%d_%H%M%S')})"
-
-    # Run inteference
-    # dets = {"weights": weights_path, "conf_thres": 0.1, "source": "inteference.jpg", "device": torch.cuda.current_device()}
-    # detect.run(**dets)
-
-    # print(os.getcwd())
-    # yolov9_dir = f"{HOME}/{YOLOV9}"
-    # os.chdir(yolov9_dir)
-
-    # Train custom model
-
-    # trn = {"batch-size": 8, "epochs": 25, "img": 640, "device": device, "min-items": 0, "close-mosaic": 15 \
-    #         , "data": "G:/My Drive/Datasets/data.yaml" \
-    #         , "weights": f"{HOME}/{weights_path}" \
-    #         , "cfg": f"yolov9/models/detect/{weight}.yaml" \
-    #         , "hyp": "hyp.scratch-high.yaml"
-    #         }
-    # train.run(**trn)
-
-    # vld = {"imgsz":640, "batch_size": 32, "conf_thres": 0.001, "iou_thres": 0.7, "device": device \
-    #         , "data": "G:/My Drive/Datasets/data.yaml" \
-    #         , "weights": f"{HOME}/yolov9/runs/train/exp4/weights/best.pt"
-    #         }
-    # val.run(**vld)
-
-    # Test video
-    # trained_model = f"{HOME}/yolov9/runs/train/exp4/weights/best.pt"
-
-    # Detect video type
-    # dets = {"weights": weights_path, "conf_thres": 0.1 \
-    #         , "source": "rtsp://localhost:8554/", "device": torch.cuda.current_device() \
-    #         , "classes": 0}
-
-    # Initiate streamlit
-    strlit = Streamlit()
+    
+    strlit = Streamlit()        # Initiate Streamlit instance
     strlit.json_file = preset_line_json
-    mongodb = Database(collection_name=database_name, client_host="mongodb+srv://TeohYx:Xian-28-0605@apc.agqhpn3.mongodb.net/")
+    # mongodb = Database(
+    #     collection_name=database_name, client_host="mongodb+srv://TeohYx:Xian-28-0605@apc.agqhpn3.mongodb.net/"
+    #     )                       # Initiate Database instance
+
+    mongodb = Database(
+        collection_name=database_name,
+        )                       # Initiate Database instance
+
+
     # streamlit
     st.title("Automated Passenger Counter")
 
@@ -134,14 +109,15 @@ def main():
     # If media source is chosen
     if st.session_state.source:
 
-        counter_obj = Counter()
-        source_info_obj = SourceInfo(st.session_state.source, screenshot_file)  # The resized resolution is set to 720, 1280 by default
-        track_info_obj = TrackInfo(preset_line_json, preset_line_path)
+        counter_obj = Counter()  # Initiate Counter instance
+        source_info_obj = SourceInfo(st.session_state.source, screenshot_file)  # Initiate SourceInfo instance
+        track_info_obj = TrackInfo(preset_line_json, preset_line_path)  # Initiate TrackInfo instance
+
         track_info_obj.store_plain_image(screenshot_file)
 
         # # Selectbox in Streamlit
         if st.session_state.selectbox_sidebar == strlit.selection_current:
-            strlit.display_current_interface(track_info_obj, source_info_obj)
+            strlit.display_current_interface()
         # elif st.session_state.selectbox_sidebar == strlit.selection_history:
         #     strlit.display_history_interface()
 
@@ -153,7 +129,7 @@ def main():
         #         , "track_info_obj": track_info_obj}
         dets = {"weights": weights_path, "conf_thres": 0.1 \
                 , "source": st.session_state.source \
-                , "classes": 0, "vid_stride": 5, "strlit": strlit \
+                , "classes": 0, "vid_stride": 2, "strlit": strlit \
                 , "mongodb": mongodb, "counter_obj": counter_obj, "source_info_obj": source_info_obj \
                 , "track_info_obj": track_info_obj}
         detect.run(**dets)

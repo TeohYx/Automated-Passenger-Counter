@@ -284,16 +284,16 @@ class TrackInfo():
                 return
             raise ValueError("The 'state' argument in draw_line() function only takes 'inner' or 'outer'!")
 
-    def draw_line_control(self, event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
-            self.start_point = (x, y)
-            self.drawing = True
-        elif event == cv2.EVENT_MOUSEMOVE:
-            if self.drawing:
-                self.end_point = (x, y)
-        elif event == cv2.EVENT_LBUTTONUP:
-            self.end_point = (x, y)
-            self.drawing = False
+    # def draw_line_control(self, event, x, y, flags, param):
+    #     if event == cv2.EVENT_LBUTTONDOWN:
+    #         self.start_point = (x, y)
+    #         self.drawing = True
+    #     elif event == cv2.EVENT_MOUSEMOVE:
+    #         if self.drawing:
+    #             self.end_point = (x, y)
+    #     elif event == cv2.EVENT_LBUTTONUP:
+    #         self.end_point = (x, y)
+    #         self.drawing = False
 
     def draw_line_on_frame(self, image):
         """
