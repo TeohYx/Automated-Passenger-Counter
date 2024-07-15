@@ -128,7 +128,7 @@ def main():
         #         , "mongodb": mongodb, "counter_obj": counter_obj, "source_info_obj": source_info_obj \
         #         , "track_info_obj": track_info_obj}
         dets = {"weights": weights_path, "conf_thres": 0.1 \
-                , "source": st.session_state.source \
+                , "source": st.session_state.source, "device": torch.cuda.current_device() \
                 , "classes": 0, "vid_stride": 2, "strlit": strlit \
                 , "mongodb": mongodb, "counter_obj": counter_obj, "source_info_obj": source_info_obj \
                 , "track_info_obj": track_info_obj}
